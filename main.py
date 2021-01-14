@@ -14,7 +14,6 @@ import re
 
 NEED_BEFORE = False  # 如需补报则置为True，否则False
 START_DT = dt.datetime(2020, 11, 10)  # 需要补报的起始日期
-XIAOQU = "宝山"  # 宝山、嘉定或延长
 
 
 # 获取东八区时间
@@ -47,7 +46,8 @@ def login(username, password):
                 'username': username,
                 'password': password
             })
-            messageBox = sess.get(f'https://newsso.shu.edu.cn/oauth/authorize?response_type=code&client_id=WUHWfrntnWYHZfzQ5QvXUCVy&redirect_uri=https%3a%2f%2fselfreport.shu.edu.cn%2fLoginSSO.aspx%3fReturnUrl%3d%252fDefault.aspx&scope=1&state={state}')
+            messageBox = sess.get(
+                f'https://newsso.shu.edu.cn/oauth/authorize?response_type=code&client_id=WUHWfrntnWYHZfzQ5QvXUCVy&redirect_uri=https%3a%2f%2fselfreport.shu.edu.cn%2fLoginSSO.aspx%3fReturnUrl%3d%252fDefault.aspx&scope=1&state={state}')
             if 'tz();' in messageBox.text:  # 调用tz()函数在首层提醒未读
                 myMessages(sess)
 
@@ -102,7 +102,8 @@ def report(sess, t, xiaoqu='宝山', temperature=36.3):
     url = f'https://selfreport.shu.edu.cn/XueSFX/HalfdayReport.aspx?day={t.year}-{t.month}-{t.day}&t={ii}'
     while True:
         try:
-            sess.get('https://newsso.shu.edu.cn/oauth/authorize?response_type=code&client_id=WUHWfrntnWYHZfzQ5QvXUCVy&redirect_uri=https%3a%2f%2fselfreport.shu.edu.cn%2fLoginSSO.aspx%3fReturnUrl%3d%252fDefault.aspx&scope=1')
+            sess.get(
+                'https://newsso.shu.edu.cn/oauth/authorize?response_type=code&client_id=WUHWfrntnWYHZfzQ5QvXUCVy&redirect_uri=https%3a%2f%2fselfreport.shu.edu.cn%2fLoginSSO.aspx%3fReturnUrl%3d%252fDefault.aspx&scope=1')
             r = sess.get(url)
         except Exception as e:
             print(e)
@@ -185,9 +186,10 @@ if __name__ == "__main__":
 
     if 'users' in os.environ:
         for user_password in os.environ['users'].split(';'):
-            user, password = user_password.split(',')
+            user, password, xq = user_password.split(',')
             config[user] = {
-                'pwd': password
+                'pwd': password,
+                'xq': xq
             }
 
     for user in config:
@@ -196,6 +198,7 @@ if __name__ == "__main__":
 
         print(f'======{user}======')
         sess = login(user, config[user]['pwd'])
+        XIAOQU = config[user]['xq']
 
         if sess:
             now = get_time()
@@ -203,6 +206,7 @@ if __name__ == "__main__":
             if NEED_BEFORE:
                 t = START_DT
                 while t < now:
+
                     report(sess, t + dt.timedelta(hours=8), XIAOQU)
                     report(sess, t + dt.timedelta(hours=20), XIAOQU)
 
