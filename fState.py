@@ -16,14 +16,18 @@ class F_STATE_GENERATOR:
         bytes_data = data.encode("utf-8")
         return (base64.b64encode(bytes_data)).decode()
 
-    def updated_F_STATE(self, t, ZAIXIAO, XIAN, ii):
-        p1_Title = ["每日两报（上午）", "每日两报（下午）"][int(ii)-1]
+    def updated_F_STATE(self, t, ZAIXIAO, SHENG, SHI, XIAN, JUTIDIZHI, ii):
+        p1_Title = ["每日两报（上午）", "每日两报（下午）"][int(ii) - 1]
         F_STATE_read = self._decode_base64(self.F_STATE_template)
         F_STATE_dict = json.loads(F_STATE_read)
 
         F_STATE_dict.get('p1_BaoSRQ').update({'Text': t.strftime('%Y-%m-%d')})
         F_STATE_dict.get('p1_ZaiXiao').update({'SelectedValue': ZAIXIAO})
+        F_STATE_dict.get('p1_ddlSheng').update({'SelectedValueArray': [SHENG]})
+        F_STATE_dict.get('p1_ddlShi').update({'SelectedValueArray': [SHI]})
         F_STATE_dict.get('p1_ddlXian').update({'SelectedValueArray': [XIAN]})
+        F_STATE_dict.get('p1_XiangXDZ').update({'Text': JUTIDIZHI})
+
         F_STATE_dict.get('p1').update({'Title': p1_Title})
 
         updated_F_STATE_str = json.dumps(F_STATE_dict, ensure_ascii=False, separators=(',', ':'))
@@ -32,8 +36,13 @@ class F_STATE_GENERATOR:
 
 if __name__ == '__main__':
     import datetime as dt
+
     t = dt.datetime.utcnow()
     t = t + dt.timedelta(hours=8)
-    ZAIXIAO = "延长"  # 宝山、嘉定或延长
-    XIAN = "静安区"  # 宝山区、嘉定区或静安区
-    F_STATE_GENERATOR().updated_F_STATE(t, ZAIXIAO, XIAN, ii=int('1'))
+    xiaoqu='不在校'
+    sheng='江苏'
+    shi='南通市'
+    xian='海门市'
+    jutidizhi='五港新村602幢602室'
+    F_STATE_GENERATOR().updated_F_STATE(t, xiaoqu, sheng, shi, xian, jutidizhi, ii=int('1'))
+    # F_STATE_GENERATOR().updated_F_STATE(t, ZAIXIAO, XIAN, ii=int('1'))

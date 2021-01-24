@@ -90,14 +90,16 @@ def myMessages(sess):
     return
 
 
-def report(sess, t, xiaoqu='宝山', temperature=36.3):
+def report(sess, t, xq, temperature=36.3):
     ii = '1' if t.hour < 19 else '2'
-    if xiaoqu == '宝山':
-        xian = '宝山区'
-    elif xiaoqu == '嘉定':
-        xian = '嘉定区'
-    elif xiaoqu == '延长':
-        xian = '静安区'
+    sheng, shi, xian, jutidizhi = xq.split('_')
+    xiaoqu = '不在校'
+    # if xiaoqu == '宝山':
+    #     xian = '宝山区'
+    # elif xiaoqu == '嘉定':
+    #     xian = '嘉定区'
+    # elif xiaoqu == '延长':
+    #     xian = '静安区'
 
     url = f'https://selfreport.shu.edu.cn/XueSFX/HalfdayReport.aspx?day={t.year}-{t.month}-{t.day}&t={ii}'
     while True:
@@ -131,15 +133,15 @@ def report(sess, t, xiaoqu='宝山', temperature=36.3):
                 'p1$DangQSTZK': '良好',
                 'p1$TiWen': str(temperature),
                 'p1$ZaiXiao': xiaoqu,
-                'p1$ddlSheng$Value': '上海',
-                'p1$ddlSheng': '上海',
-                'p1$ddlShi$Value': '上海市',
-                'p1$ddlShi': '上海市',
+                'p1$ddlSheng$Value': sheng,
+                'p1$ddlSheng': sheng,
+                'p1$ddlShi$Value': shi,
+                'p1$ddlShi': shi,
                 'p1$ddlXian$Value': xian,
                 'p1$ddlXian': xian,
                 'p1$FengXDQDL': '否',
                 'p1$TongZWDLH': '否',
-                'p1$XiangXDZ': '上海大学',
+                'p1$XiangXDZ': jutidizhi,
                 'p1$QueZHZJC$Value': '否',
                 'p1$QueZHZJC': '否',
                 'p1$DangRGL': '否',
@@ -160,7 +162,7 @@ def report(sess, t, xiaoqu='宝山', temperature=36.3):
                 'p1_GeLSM_Collapsed': 'false',
                 'p1_Collapsed': 'false',
                 'F_TARGET': 'p1_ctl00_btnSubmit',
-                'F_STATE': F_STATE_GENERATOR().updated_F_STATE(t, xiaoqu, xian, ii),
+                'F_STATE': F_STATE_GENERATOR().updated_F_STATE(t, xiaoqu, sheng, shi, xian, jutidizhi, ii),
             }, headers={
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-FineUI-Ajax': 'true'
@@ -205,7 +207,6 @@ if __name__ == "__main__":
             if NEED_BEFORE:
                 t = START_DT
                 while t < now:
-
                     report(sess, t + dt.timedelta(hours=8), XIAOQU)
                     report(sess, t + dt.timedelta(hours=20), XIAOQU)
 
