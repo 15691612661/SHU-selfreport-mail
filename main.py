@@ -255,8 +255,7 @@ if __name__ == "__main__":
             }
 
     for user in config:
-        if user == 'email': break
-        if user in ['00000000', '11111111']:
+        if user in ['email', '00000000', '11111111']:
             continue
 
         print(f'======{user}======')
