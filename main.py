@@ -248,10 +248,10 @@ if __name__ == "__main__":
 
     if 'users' in os.environ:
         for user_password in os.environ['users'].split(';'):
-            user, password, email = user_password.split(',')
+            user, password, email_to = user_password.split(',')
             config[user] = {
                 'pwd': password,
-                'email_to': email
+                'email_to': email_to
             }
 
     for user in config:
