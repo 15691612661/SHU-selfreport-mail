@@ -5,12 +5,36 @@ from pathlib import Path
 
 import yaml
 from bs4 import BeautifulSoup
+import smtplib
+from email.message import EmailMessage
 
 from fstate_generator import generate_fstate_day, generate_fstate_halfday, get_last_report
 from login import login
 
 NEED_BEFORE = False  # 如需补报则置为True，否则False
 START_DT = dt.datetime(2020, 10, 10)  # 需要补报的起始日期
+
+
+# 邮件发送模块
+def send_mail(sender_config, to_email, subject, message):
+    if sender_config['from'] is None or sender_config['username'] is None \
+            or sender_config['password'] is None or sender_config is None:
+        return
+
+    msg = EmailMessage()
+    msg['Subject'] = subject
+    msg['From'] = sender_config['from']
+    msg['To'] = ', '.join(to_email)
+    msg.set_content(message)
+
+    try:
+        server = smtplib.SMTP_SSL(sender_config['smtp'], port=sender_config['port'])
+        server.login(sender_config['username'], sender_config['password'])
+        server.send_message(msg)
+        server.close()
+        return True
+    except smtplib.SMTPException:
+        return False
 
 
 # 获取东八区时间
@@ -31,7 +55,7 @@ def get_time():
     return t
 
 
-def report_day(sess, t):
+def report_day(sess, t, user, config):
     url = f'https://selfreport.shu.edu.cn/DayReport.aspx?day={t.year}-{t.month}-{t.day}'
 
     r = sess.get(url)
@@ -125,9 +149,16 @@ def report_day(sess, t):
 
     if any(i in r.text for i in ['提交成功', '历史信息不能修改', '现在还没到晚报时间', '只能填报当天或补填以前的信息']):
         print(f'{t} 每日一报提交成功')
+        txt = '亲爱的同学（{}）\n'.format(user['id'])
+        txt += '您的小可爱于' + t.strftime('%Y-%m-%d %H:%M:%S') + "将您的每日一报提交成功\n 下面是具体填报信息\n"
+        txt += f'是否在上海：{ShiFSH}\n 是否在校：{ShiFZX} \n 所在省：{ddlSheng} \n 所在市：{ddlShi}\n 所在县{ddlXian}\n 具体地址{XiangXDZ}'
+        send_mail(config['email'], config[user]['email_to'],
+                  "{}月{}日每日一报提交成功".format(t.month, t.day), txt)
         return True
     else:
         print(f'{t} 每日一报提交失败')
+        send_mail(config['email'], config[user]['email_to'],
+                  "{}月{}日每日一报提交失败".format(t.month, t.day), r.text)
         print(r.text)
         return False
 
@@ -217,9 +248,10 @@ if __name__ == "__main__":
 
     if 'users' in os.environ:
         for user_password in os.environ['users'].split(';'):
-            user, password = user_password.split(',')
+            user, password, email = user_password.split(',')
             config[user] = {
-                'pwd': password
+                'pwd': password,
+                'email_to': email
             }
 
     for user in config:
@@ -241,7 +273,7 @@ if __name__ == "__main__":
 
                     t = t + dt.timedelta(days=1)
 
-            report_day(sess, get_time())
+            report_day(sess, get_time(), user, config)
             report_halfday(sess, get_time())
 
         time.sleep(60)

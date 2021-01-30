@@ -2,5 +2,14 @@
 # 学号:
 #   pwd：密码
 # 注意引号
-"20721985":
-  pwd: "GDZgdz678"
+email:
+  # 发送邮件的邮箱
+  from: "gdz678@163.com"
+  # 登录邮箱的账号
+  username: "gdz678@163.com"
+  # smtp服务授权码
+  password: "BNRMDEQMZMRCKNCX"
+  # smtp服务器
+  smtp: "smtp.163.com"
+  # smtp服务器SSL协议端口号，很多邮箱默认为465，建议使用测试功能进行测试
+  port: 465
