@@ -10,6 +10,4 @@ email:
   smtp: "smtp.163.com"
   # smtp服务器SSL协议端口号，很多邮箱默认为465，建议使用测试功能进行测试
   port: 465
-"20721985":
-  pwd: "GDZgdz678"
-  email_to: "gdz678@163.com"
+
