@@ -274,6 +274,6 @@ if __name__ == "__main__":
                     t = t + dt.timedelta(days=1)
 
             report_day(sess, get_time(), user, config)
-            report_halfday(sess, get_time())
+            #report_halfday(sess, get_time())
 
         time.sleep(60)
