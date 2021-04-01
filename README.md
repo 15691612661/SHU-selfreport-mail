@@ -8,7 +8,8 @@
 
 支持每日一报/每日两报。目前暂时同时进行每日一报和每日两报。
 
-原作者仓库地址https://github.com/BlueFisher/SHU-selfreport，本仓库加了每天报送的邮件提醒。
+原作者仓库地址https://github.com/BlueFisher/SHU-selfreport，
+本仓库加了每天报送的邮件提醒。
 
 ## 免责申明
 
