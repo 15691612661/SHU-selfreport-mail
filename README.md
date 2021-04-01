@@ -1,4 +1,4 @@
-# 上海大学健康之路每日一报/每日两报自动打卡
+# 上海大学健康之路每日一报/每日两报自动打卡-邮箱提醒
 
 程序为python脚本文件，修改配置文件相关信息，设置后台运行脚本，脚本会根据配置文件信息自动进行每日一报/每日两报。
 
@@ -20,46 +20,9 @@
 
 如果你想获取最新的更新，记得右上角的`watch`
 
-### 1. 你有服务器，只在自己服务器上进行自动打卡
 
-在 `config.yaml` 中设置所有需要打卡的学号密码
 
-**本程序自带一键补报功能**，如需补报，定位到 `main.py` 第14行
-
-```python
-NEED_BEFORE = False  # 如需补报则置为True，否则False
-START_DT = dt.datetime(2020, 11, 10)  # 需要补报的起始日期
-```
-
-针对Ubuntu，编辑定时执行程序cron
-
-```bash
-crontab -e
-```
-
-加入以下命令：
-
-```bash
-# 程序每天8点与20点执行一次，并将结果输出至shu_report.log
-# 注意python的路径，main.py与输出日志shu_report.log的绝对路径
-0 8,20 * * * python -u /xxx/main.py 2>&1 >> /xxx/shu_report.log
-```
-
-如果你服务器是UTC时区，则为
-
-```bash
-0 11,23 * * * python -u /xxx/main.py 2>&1 >> /xxx/shu_report.log
-```
-
-如果你不确定你服务器的时区，也可以每小时运行一次：
-
-```bash
-0 * * * * python -u /xxx/main.py 2>&1 >> /xxx/shu_report.log
-```
-
-### 2. 你没有服务器，使用 github actions（推荐）
-
-**在该模式下请不要开启补报功能**
+### 1. 使用 github actions（推荐）
 
 #### 你第一次Fork
 
@@ -84,13 +47,6 @@ crontab -e
    ![](images/run_workflow.png)
 
 ![](images/actions.png)
-
-
-#### 你第二次Fork，要更新原先内容
-
-![](images/update_fork.gif)
-
-或者最简单的方法， 删除你fork的项目，重新fork
 
 
 

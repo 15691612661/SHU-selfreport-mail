@@ -1,11 +1,11 @@
 
 email:
   # 发送邮件的邮箱
-  from: "gdz678@163.com"
+  from: "shushu_2021@163.com"
   # 登录邮箱的账号
-  username: "gdz678@163.com"
+  username: "shushu_2021@163.com"
   # smtp服务授权码
-  password: "ZWCXOZRLCPPPZARM"
+  password: "JTISNWKAKQCWYMFQ"
   # smtp服务器
   smtp: "smtp.163.com"
   # smtp服务器SSL协议端口号，很多邮箱默认为465，建议使用测试功能进行测试
