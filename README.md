@@ -42,6 +42,9 @@
    ![](images/run_workflow.png)
 
 ![](images/actions.png)
+6. 每天的邮箱提醒如下图
+
+![](images/mail.png)
 
 
 
