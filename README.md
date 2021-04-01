@@ -29,22 +29,22 @@
 
 `VALUE` 设置为 `学号1,密码1,邮箱1;学号2,密码2,邮箱2` 的格式，注意逗号与分号的区分，学号密码之间用逗号，每两个学号之间用分号，必须是英文半角符号，如果只有一个学号密码则不需要加分号
 
-![](images/secrets.png)
+![](https://gitee.com/ma_tung_zhou/imageuse1/raw/master/imgg/secrets.png)
 
 4. 定位到你仓库下的 `Actions` 选项卡，点击 `Enable workflow`
 
-![](images/enable_actions.png)
+![](https://gitee.com/ma_tung_zhou/imageuse1/raw/master/imgg/enable_actions.png)
 
 5. 此时Actions 已经启动完成，每天上午七点（UTC+8）执行一次，每执行一次会在 `Actions` 选项卡下生成一个报告。
 
    如果需要对报送功能进行测试，可以点击 `run workflow` 按钮，立即进行一次运行。
 
-   ![](images/run_workflow.png)
+   ![](https://gitee.com/ma_tung_zhou/imageuse1/raw/master/imgg/run_workflow.png)
 
-![](images/actions.png)
+![](https://gitee.com/ma_tung_zhou/imageuse1/raw/master/imgg/actions.png)
 6. 每天的邮箱提醒如下图
 
-![](images/mail.png)
+![](https://gitee.com/ma_tung_zhou/imageuse1/raw/master/imgg/mail.png)
 
 
 
