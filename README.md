@@ -19,7 +19,7 @@
 
 ### 已fork使用过，更新仓库：
 
-![img](https://gitee.com/ma_tung_zhou/imageuse1/raw/master/imgg/update_fork.gif)
+![img](https://github.com/BlueFisher/SHU-selfreport/blob/master/images/update_fork.gif)
 
 或者最简单的方法， 删除你fork的项目，重新fork
 
