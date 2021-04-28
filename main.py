@@ -143,12 +143,11 @@ def report_day(sess, t, user, config):
             print(e)
             continue
         break
-
     if any(i in r.text for i in ['提交成功', '历史信息不能修改', '现在还没到晚报时间', '只能填报当天或补填以前的信息']):
         print(f'{t} 每日一报提交成功')
-        txt = "亲爱的同学（{}）\n".format(user)
-        txt += "您的小可爱于" + t.strftime('%Y-%m-%d %H:%M:%S') + "将您的每日一报提交成功\n下面是具体填报信息\n"
-        txt += f" 是否在上海：{ShiFSH}\n 是否在校：{ShiFZX} \n 所在省：{ddlSheng} \n 所在市：{ddlShi}\n 所在县：{ddlXian}\n 具体地址：{XiangXDZ}\n"
+        txt = "亲爱的同学（{}）\n".format(''.join([str(j) if i%2==0 else 'shu' for i,j in enumerate(user)]))
+        txt += "您于" + t.strftime('%Y-%m-%d %H:%M:%S') + "将每日一报提交成功\n下面是具体填报信息\n"
+        txt += f" 是否在上海：{ShiFSH}\n 是否在校：{ShiFZX} \n 所在省：{ddlSheng} \n 所在市：{ddlShi}\n 所在县：{ddlXian}\n 具体地址：{''.join([str(j) if i%2==0 else 'shu' for i,j in enumerate(XiangXDZ)])}\n"
         txt += "=v= 感谢您的光临，明天竭诚为您服务!"
         send_mail(config['email'], [config[user]['email_to']],
                   "{}月{}日每日一报提交成功".format(t.month, t.day), txt)
@@ -157,7 +156,7 @@ def report_day(sess, t, user, config):
     else:
         print(f'{t} 每日一报提交失败')
         send_mail(config['email'], [config[user]['email_to']],
-                  "{}月{}日每日一报提交失败".format(t.month, t.day), r.text)
+                  "{}月{}日每日一报提交失败!!!!!".format(t.month, t.day), r.text)
         print(r.text)
         return False
 
