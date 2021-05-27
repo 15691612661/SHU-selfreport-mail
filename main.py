@@ -276,4 +276,4 @@ if __name__ == "__main__":
             report_day(sess, get_time(), user, config)
             # report_halfday(sess, get_time())
 
-        time.sleep(60)
+        time.sleep(120)
