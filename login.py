@@ -4,6 +4,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 import rsa
+import time
 
 
 def myMessages(sess):
@@ -48,6 +49,7 @@ def login(username, password):
 
         except Exception as e:
             print(e)
+            time.sleep(60)
             continue
         break
 
