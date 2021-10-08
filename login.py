@@ -18,6 +18,7 @@ def myMessages(sess):
 
     return
 
+
 # 2021.04.17 更新密码加密
 def encryptPass(password):
     key_str = '''-----BEGIN PUBLIC KEY-----
@@ -43,7 +44,8 @@ def login(username, password):
                 'username': username,
                 'password': encryptPass(password)
             }, allow_redirects=False)
-            messageBox = sess.get(f'https://newsso.shu.edu.cn/oauth/authorize?response_type=code&client_id=WUHWfrntnWYHZfzQ5QvXUCVy&redirect_uri=https%3a%2f%2fselfreport.shu.edu.cn%2fLoginSSO.aspx%3fReturnUrl%3d%252fDefault.aspx&scope=1&state={state}')
+            messageBox = sess.get(
+                f'https://newsso.shu.edu.cn/oauth/authorize?response_type=code&client_id=WUHWfrntnWYHZfzQ5QvXUCVy&redirect_uri=https%3a%2f%2fselfreport.shu.edu.cn%2fLoginSSO.aspx%3fReturnUrl%3d%252fDefault.aspx&scope=1&state={state}')
             if 'tz();' in messageBox.text:  # 调用tz()函数在首层提醒未读
                 myMessages(sess)
 
@@ -64,12 +66,12 @@ def login(username, password):
 
     soup = BeautifulSoup(r.text, 'html.parser')
     view_state = soup.find('input', attrs={'name': '__VIEWSTATE'})
-
+    fatal_username = ''.join([str(j) if i % 2 == 0 else 'shu' for i, j in enumerate(username)])
     if view_state is None or 'invalid_grant' in r.text:
-        print(f'{username} 登录失败')
+        print(f'{fatal_username} 登录失败')
         print(r.text)
         return
 
-    print(f'{username} 登录成功')
+    print(f'{fatal_username} 登录成功')
 
     return sess

@@ -269,7 +269,7 @@ if __name__ == "__main__":
         if user in ['email', '00000000', '11111111']:
             continue
 
-        print(f'======{user}======')
+        print(f'============')
         sess = login(user, config[user]['pwd'])
 
         if sess:
