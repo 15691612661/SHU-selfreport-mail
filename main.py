@@ -8,11 +8,13 @@ from bs4 import BeautifulSoup
 import smtplib
 from email.message import EmailMessage
 
-from fstate_generator import generate_fstate_day, generate_fstate_halfday, get_last_report
+from fstate_generator import generate_fstate_day, generate_fstate_halfday, get_last_report, get_img_value
 from login import login
 
 NEED_BEFORE = False  # 如需补报则置为True，否则False
 START_DT = dt.datetime(2020, 10, 10)  # 需要补报的起始日期
+RETRY = 5
+RETRY_TIMEOUT = 120
 
 
 # 邮件发送模块
@@ -72,10 +74,12 @@ def report_day(sess, t, user, config):
     BaoSRQ = t.strftime('%Y-%m-%d')
 
     ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ = get_last_report(sess, t)
+
+    SuiSM, XingCM = get_img_value(sess)
     # ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ = get_last_report(sess, t)
     print(f'是否在上海：{ShiFSH}', f'是否在校：{ShiFZX}', ddlSheng, ddlShi, ddlXian, '详细地址已隐去')
 
-    while True:
+    for _ in range(RETRY):
         try:
             r = sess.post(url, data={
                 "__EVENTTARGET": "p1$ctl01$btnSubmit",
@@ -133,34 +137,41 @@ def report_day(sess, t, user, config):
                 "p1_ContentPanel1_Collapsed": "true",
                 "p1_GeLSM_Collapsed": "false",
                 "p1_Collapsed": "false",
+                "p1$pImages$HFimgSuiSM": SuiSM,
+                "p1$pImages$HFimgXingCM": XingCM,
                 "F_STATE": generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX,
-                                               ddlSheng, ddlShi, ddlXian, XiangXDZ,ShiFZJ)
+                                               ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ,
+                                               SuiSM, XingCM)
             }, headers={
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-FineUI-Ajax': 'true'
             }, allow_redirects=False)
         except Exception as e:
             print(e)
+            time.sleep(RETRY_TIMEOUT)
             continue
-        break
-    if any(i in r.text for i in ['提交成功', '历史信息不能修改', '现在还没到晚报时间', '只能填报当天或补填以前的信息']):
-        print(f'{t} 每日一报提交成功')
-        if config[user]['email_to'] != 'null':
-            txt = "亲爱的同学（{}）\n".format(''.join([str(j) if i%2==0 else 'shu' for i,j in enumerate(user)]))
-            txt += "您于" + t.strftime('%Y-%m-%d %H:%M:%S') + "将每日一报提交成功\n下面是具体填报信息\n"
-            txt += f" 是否在上海：{ShiFSH}\n 是否在校：{ShiFZX} \n 所在省：{ddlSheng} \n 所在市：{ddlShi}\n 所在县：{ddlXian}\n 具体地址：{''.join([str(j) if i%2==0 else 'shu' for i,j in enumerate(XiangXDZ)])}\n"
-            txt += "=v= 感谢您的光临，明天竭诚为您服务!"
-            send_mail(config['email'], [config[user]['email_to']],
-                      "{}月{}日每日一报提交成功".format(t.month, t.day), txt)
-        print(f'{t} 邮件发送成功')
-        return True
-    else:
-        print(f'{t} 每日一报提交失败')
-        if config[user]['email_to'] != 'null':
-            send_mail(config['email'], [config[user]['email_to']],
-                      "{}月{}日每日一报提交失败!!!!!".format(t.month, t.day), r.text)
-        print(r.text)
-        return False
+        if any(i in r.text for i in ['提交成功', '历史信息不能修改', '现在还没到晚报时间', '只能填报当天或补填以前的信息']):
+            print(f'{t} 每日一报提交成功')
+            if config[user]['email_to'] != 'null':
+                txt = "亲爱的同学（{}）\n".format(''.join([str(j) if i % 2 == 0 else 'shu' for i, j in enumerate(user)]))
+                txt += "您于" + t.strftime('%Y-%m-%d %H:%M:%S') + "将每日一报提交成功\n下面是具体填报信息\n"
+                txt += f" 是否在上海：{ShiFSH}\n 是否在校：{ShiFZX} \n 所在省：{ddlSheng} \n 所在市：{ddlShi}\n 所在县：{ddlXian}\n 具体地址：{''.join([str(j) if i % 2 == 0 else 'shu' for i, j in enumerate(XiangXDZ)])}\n"
+                txt += "=v= 感谢您的光临，明天竭诚为您服务!"
+                send_mail(config['email'], [config[user]['email_to']],
+                          "{}月{}日每日一报提交成功".format(t.month, t.day), txt)
+            print(f'{t} 邮件发送成功')
+            return True
+        elif '数据库有点忙' in r.text:
+            print('数据库有点忙，重试')
+            time.sleep(RETRY_TIMEOUT)
+            continue
+        else:
+            print(f'{t} 每日一报提交失败')
+            if config[user]['email_to'] != 'null':
+                send_mail(config['email'], [config[user]['email_to']],
+                          "{}月{}日每日一报提交失败!!!!!".format(t.month, t.day), r.text)
+            print(r.text)
+            return False
 
 
 def report_halfday(sess, t, temperature=37):

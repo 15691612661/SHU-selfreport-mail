@@ -12,7 +12,8 @@ def _generate_fstate_base64(fstate):
     return base64.b64encode(fstate_bytes).decode()
 
 
-def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ):
+def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ,
+                        SuiSM, XingCM):
     with open('fstate_day.json', encoding='utf8') as f:
         fstate = json.loads(f.read())
 
@@ -27,6 +28,8 @@ def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, Xiang
     fstate['p1_ddlXian']['SelectedValueArray'] = [ddlXian]
     fstate['p1_XiangXDZ']['Text'] = XiangXDZ
     fstate['p1_ShiFZJ']['SelectedValue'] = ShiFZJ
+    fstate['p1_pImages_HFimgSuiSM']['Text'] = SuiSM
+    fstate['p1_pImages_HFimgXingCM']['Text'] = XingCM
 
     fstate_base64 = _generate_fstate_base64(fstate)
     t = len(fstate_base64) // 2
@@ -90,6 +93,24 @@ def get_last_report(sess, t):
 
     return ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ
 
+def get_img_value(sess):
+    SuiSM = 'cYskH72v3ZA='
+    XingCM = 'cYskH72v3ZA='
+
+    r = sess.get(f'https://selfreport.shu.edu.cn/DayReport.aspx')
+    t = re.findall(r'^.*//\]', r.text, re.MULTILINE)[0]
+    htmls = t.split(';var ')
+    for i, h in enumerate(htmls):
+        try:
+            if 'p1$pImages$HFimgSuiSM' in h:
+                SuiSM = _html_to_json(htmls[i - 1])['Text']
+            if 'p1$pImages$HFimgXingCM' in h:
+                XingCM = _html_to_json(htmls[i - 1])['Text']
+        except:
+            print('获取随身码行程码有错误')
+            print(htmls[i - 1])
+
+    return SuiSM, XingCM
 
 if __name__ == '__main__':
     print(generate_fstate_day())
