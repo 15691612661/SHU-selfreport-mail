@@ -195,7 +195,7 @@ def report_halfday(sess, t, temperature=37):
     while True:
         try:
             r = sess.post(url, data={
-                "__EVENTTARGET": "p1$ctl00$btnSubmit",
+                "__EVENTTARGET": "p1$ctl02$btnSubmit",
                 "__EVENTARGUMENT": "",
                 "__VIEWSTATE": "",
                 "__VIEWSTATEGENERATOR": "DC4D08A3",
