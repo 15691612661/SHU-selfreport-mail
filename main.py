@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 import smtplib
 from email.message import EmailMessage
 
-from fstate_generator import generate_fstate_day, generate_fstate_halfday, get_last_report, get_img_value
+from fstate_generator import generate_fstate_day, get_last_report, get_img_value
 from login import login
 
 NEED_BEFORE = False  # 如需补报则置为True，否则False
@@ -175,83 +175,6 @@ def report_day(sess, t, user, config):
             return False
 
 
-def report_halfday(sess, t, temperature=37):
-    ii = '1' if t.hour < 19 else '2'
-
-    url = f'https://selfreport.shu.edu.cn/XueSFX/HalfdayReport.aspx?day={t.year}-{t.month}-{t.day}&t={ii}'
-
-    r = sess.get(url)
-    soup = BeautifulSoup(r.text, 'html.parser')
-    view_state = soup.find('input', attrs={'name': '__VIEWSTATE'})
-
-    if view_state is None:
-        if '上海大学统一身份认证' in r.text:
-            print('登录信息过期')
-        else:
-            print(r.text)
-        return False
-
-    BaoSRQ = t.strftime('%Y-%m-%d')
-
-    while True:
-        try:
-            r = sess.post(url, data={
-                "__EVENTTARGET": "p1$ctl02$btnSubmit",
-                "__EVENTARGUMENT": "",
-                "__VIEWSTATE": "",
-                "__VIEWSTATEGENERATOR": "DC4D08A3",
-                "p1$ChengNuo": "p1_ChengNuo",
-                "p1$BaoSRQ": BaoSRQ,
-                "p1$DangQSTZK": "良好",
-                "p1$TiWen": str(temperature),
-                "p1$ZaiXiao": "宝山",
-                "p1$ddlSheng$Value": "上海",
-                "p1$ddlSheng": "上海",
-                "p1$ddlShi$Value": "上海市",
-                "p1$ddlShi": "上海市",
-                "p1$ddlXian$Value": "宝山区",
-                "p1$ddlXian": "宝山区",
-                "p1$XiangXDZ": "上海大学",
-                "p1$FengXDQDL": "否",
-                "p1$TongZWDLH": "否",
-                "p1$CengFWH": "否",
-                "p1$CengFWH_RiQi": "",
-                "p1$CengFWH_BeiZhu": "",
-                "p1$JieChu": "否",
-                "p1$JieChu_RiQi": "",
-                "p1$JieChu_BeiZhu": "",
-                "p1$TuJWH": "否",
-                "p1$TuJWH_RiQi": "",
-                "p1$TuJWH_BeiZhu": "",
-                "p1$QueZHZJC$Value": "否",
-                "p1$QueZHZJC": "否",
-                "p1$DangRGL": "否",
-                "p1$GeLDZ": "",
-                "p1$JiaRen_BeiZhu": "",
-                "p1$SuiSM": "绿色",
-                "p1$LvMa14Days": "是",
-                "p1$Address2": "",
-                "F_TARGET": "p1_ctl00_btnSubmit",
-                "p1_ContentPanel1_Collapsed": "true",
-                "p1_GeLSM_Collapsed": "false",
-                "p1_Collapsed": "false",
-                'F_STATE': generate_fstate_halfday(BaoSRQ),
-            }, headers={
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-FineUI-Ajax': 'true'
-            }, allow_redirects=False)
-        except Exception as e:
-            print(e)
-            continue
-        break
-
-    if any(i in r.text for i in ['提交成功', '历史信息不能修改', '现在还没到晚报时间', '只能填报当天或补填以前的信息']):
-        print(f'{t} 每日两报提交成功')
-        return True
-    else:
-        print(f'{t} 每日两报提交失败')
-        print(r.text)
-        return False
 
 
 if __name__ == "__main__":
@@ -280,12 +203,8 @@ if __name__ == "__main__":
                 t = START_DT
                 while t < now:
                     report_day(sess, t)
-                    report_halfday(sess, t + dt.timedelta(hours=8))
-                    report_halfday(sess, t + dt.timedelta(hours=20))
-
                     t = t + dt.timedelta(days=1)
 
             report_day(sess, get_time(), user, config)
-            # report_halfday(sess, get_time())
 
         time.sleep(120)
