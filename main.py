@@ -72,7 +72,6 @@ def report_day(sess, t, user, config):
         return False
 
     BaoSRQ = t.strftime('%Y-%m-%d')
-
     ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ = get_last_report(sess, t)
 
     XingCM = get_img_value(sess)
