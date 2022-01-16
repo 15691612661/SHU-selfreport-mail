@@ -12,7 +12,7 @@ def _generate_fstate_base64(fstate):
     return base64.b64encode(fstate_bytes).decode()
 
 
-def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ,
+def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ,SuiSM,
                         XingCM):
     with open('fstate_day.json', encoding='utf8') as f:
         fstate = json.loads(f.read())
@@ -28,6 +28,7 @@ def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, Xiang
     fstate['p1_ddlXian']['SelectedValueArray'] = [ddlXian]
     fstate['p1_XiangXDZ']['Text'] = XiangXDZ
     fstate['p1_ShiFZJ']['SelectedValue'] = ShiFZJ
+    fstate['p1_pImages_HFimgSuiSM']['Text'] = SuiSM
     fstate['p1_pImages_HFimgXingCM']['Text'] = XingCM
 
     fstate_base64 = _generate_fstate_base64(fstate)
@@ -93,6 +94,7 @@ def get_last_report(sess, t):
 
 def get_img_value(sess):
     print('#正在获取行程码信息...')
+    SuiSM = 'cYskH72v3ZA='
 
     XingCM = 'cYskH72v3ZA='
 
@@ -100,13 +102,19 @@ def get_img_value(sess):
     t = re.findall(r'^.*//\]', r.text, re.MULTILINE)[0]
     htmls = t.split(';var ')
     for i, h in enumerate(htmls):
-        try:
-            if 'p1$pImages$HFimgXingCM' in h:
-                XingCM = _html_to_json(htmls[i - 1])['Text']
-        except:
-            print('获取行程码有错误，使用默认行程码', htmls[i - 1])
+        if 'p1_pImages_HFimgSuiSM' in h:
+            try:
+                SuiSM = _html_to_json(htmls[i - 1])['Text']
+            except:
+                print('获取随申码有错误，使用默认随申码', htmls[i - 1])
 
-    return XingCM
+        if 'p1$pImages$HFimgXingCM' in h:
+            try:
+                XingCM = _html_to_json(htmls[i - 1])['Text']
+            except:
+                print('获取行程码有错误，使用默认行程码', htmls[i - 1])
+
+    return SuiSM, XingCM
 
 
 if __name__ == '__main__':
