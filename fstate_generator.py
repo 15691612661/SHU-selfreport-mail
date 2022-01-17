@@ -1,9 +1,9 @@
 import base64
 import datetime as dt
 import json
-import random
+import os
 import re
-from pathlib import Path
+import sys
 
 
 def _generate_fstate_base64(fstate):
@@ -12,9 +12,10 @@ def _generate_fstate_base64(fstate):
     return base64.b64encode(fstate_bytes).decode()
 
 
-def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ,SuiSM,
-                        XingCM):
-    with open('fstate_day.json', encoding='utf8') as f:
+def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX,
+                        ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ,
+                        SuiSM, XingCM):
+    with open(os.path.abspath(os.path.dirname(sys.argv[0])) + '/fstate_day.json', encoding='utf8') as f:
         fstate = json.loads(f.read())
 
     fstate['p1_BaoSRQ']['Text'] = BaoSRQ
@@ -49,7 +50,7 @@ def get_last_report(sess, t):
     ddlSheng = '上海'
     ddlShi = '上海市'
     ddlXian = '宝山区'
-    XiangXDZ = '上海大学'
+    XiangXDZ = '上海大学1'
     ShiFZJ = '是'
 
     t = t - dt.timedelta(days=1)
@@ -60,7 +61,7 @@ def get_last_report(sess, t):
         try:
             if 'ShiFSH' in h:
                 print('-ShiFSH-')
-                ShiFSH = _html_to_json(htmls[i - 1])['SelectedValue']
+                ShiFSH = _html_to_json(htmls[i - 1])['Text']
                 print(ShiFSH)
             if 'ShiFZX' in h:
                 print('-ShiFZX-')
@@ -81,7 +82,7 @@ def get_last_report(sess, t):
             if 'XiangXDZ' in h:
                 print('-XiangXDZ-')
                 XiangXDZ = _html_to_json(htmls[i - 1])['Text']
-                print("隐去")
+                print(f'###{XiangXDZ[-2:]}')
             if 'ShiFZJ' in h:
                 print('-ShiFZJ-')
                 ShiFZJ = _html_to_json(htmls[i - 1])['SelectedValue']
@@ -93,9 +94,9 @@ def get_last_report(sess, t):
 
 
 def get_img_value(sess):
-    print('#正在获取行程码信息...')
-    SuiSM = 'cYskH72v3ZA='
+    print('#正在获取随申码、行程码信息...')
 
+    SuiSM = 'cYskH72v3ZA='
     XingCM = 'cYskH72v3ZA='
 
     r = sess.get(f'https://selfreport.shu.edu.cn/DayReport.aspx')
