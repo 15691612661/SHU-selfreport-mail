@@ -14,7 +14,7 @@ from login import login
 NEED_BEFORE = False  # 如需补报则置为True，否则False
 START_DT = dt.datetime(2020, 10, 10)  # 需要补报的起始日期
 RETRY = 5
-RETRY_TIMEOUT = 120
+RETRY_TIMEOUT = 10
 
 
 # 邮件发送模块
@@ -60,7 +60,18 @@ def get_time():
 def report_day(sess, t, user, config):
     url = f'https://selfreport.shu.edu.cn/DayReport.aspx?day={t.year}-{t.month}-{t.day}'
 
-    r = sess.get(url)
+    for _ in range(RETRY):
+        try:
+            r = sess.get(url, allow_redirects=False)
+        except Exception as e:
+            print(e)
+            time.sleep(RETRY_TIMEOUT)
+            continue
+        break
+    else:
+        print('获取每日一报起始页超时')
+        return False
+
     soup = BeautifulSoup(r.text, 'html.parser')
     view_state = soup.find('input', attrs={'name': '__VIEWSTATE'})
 
@@ -74,6 +85,7 @@ def report_day(sess, t, user, config):
     BaoSRQ = t.strftime('%Y-%m-%d')
     ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ = get_last_report(sess, t)
     SuiSM, XingCM = get_img_value(sess)
+
     print(f'是否在上海：{ShiFSH}', f'是否在校：{ShiFZX}', ddlSheng, ddlShi, ddlXian, '详细地址已隐去')
 
     for _ in range(RETRY):
@@ -133,10 +145,10 @@ def report_day(sess, t, user, config):
                 "p1$SuiSM": "绿色",
                 "p1$LvMa14Days": "是",
                 "p1$Address2": "",
+                "F_TARGET": "p1_ctl02_btnSubmit",
                 "p1_pnlDangSZS_Collapsed": "false",
                 "p1_pImages_Collapsed": "false",
                 "p1_ContentPanel1_Collapsed": "true",
-                "p1_GeLSM_Collapsed": "false",
                 "p1_Collapsed": "false",
                 "F_STATE": generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX,
                                                ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ,
@@ -146,6 +158,7 @@ def report_day(sess, t, user, config):
                 'X-FineUI-Ajax': 'true'
             }, allow_redirects=False)
         except Exception as e:
+            print("重试中。。。")
             print(e)
             time.sleep(RETRY_TIMEOUT)
             continue
