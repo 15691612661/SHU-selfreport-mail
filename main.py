@@ -1,5 +1,6 @@
 import datetime as dt
 import os
+import sys
 import time
 from pathlib import Path
 
@@ -193,7 +194,15 @@ if __name__ == "__main__":
         config = yaml.load(f, Loader=yaml.FullLoader)
 
     if 'users' in os.environ:
-        for user_password in os.environ['users'].split(';'):
+        os_users = os.environ['users'].split(';')
+        if len(sys.argv) == 2:
+            if sys.argv[1] == 'gh-vu':
+                print(os_users[0].split(',')[0])
+                exit(0)
+            elif sys.argv[1] == 'gh-vp':
+                print(os_users[0].split(',')[1])
+                exit(0)
+        for user_password in os_users:
             user, password, email_to = user_password.split(',')
             config[user] = {
                 'pwd': password,
