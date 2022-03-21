@@ -84,7 +84,7 @@ def report_day(sess, t, user, config):
         return False
 
     BaoSRQ = t.strftime('%Y-%m-%d')
-    ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ = get_last_report(sess, t)
+    ShiFSH, ShiFZX, XiaoQu, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ = get_last_report(sess, t)
     SuiSM, XingCM = get_img_value(sess)
 
     print(f'是否在上海：{ShiFSH}', f'是否在校：{ShiFZX}', ddlSheng, ddlShi, ddlXian, '详细地址已隐去')
@@ -97,10 +97,13 @@ def report_day(sess, t, user, config):
                 "__VIEWSTATE": view_state['value'],
                 "__VIEWSTATEGENERATOR": "7AD7E509",
                 "p1$ChengNuo": "p1_ChengNuo",
-                "p1$pnlDangSZS$DangSZS": "A",
+                # "p1$pnlDangSZS$DangSZS": "A",
                 "p1$BaoSRQ": BaoSRQ,
                 "p1$DangQSTZK": "良好",
                 "p1$TiWen": "",
+                "p1$ShiFSH": ShiFSH,
+                "p1$ShiFZX": ShiFZX,
+                "p1$XiaoQu": XiaoQu,
                 "p1$pImages$HFimgSuiSM": SuiSM,
                 "p1$pImages$HFimgXingCM": XingCM,
                 "p1$JiuYe_ShouJHM": "",
@@ -112,8 +115,6 @@ def report_day(sess, t, user, config):
                 "p1$GuoNei": "国内",
                 "p1$ddlGuoJia$Value": "-1",
                 "p1$ddlGuoJia": "选择国家",
-                "p1$ShiFSH": ShiFSH,
-                "p1$ShiFZX": ShiFZX,
                 "p1$ddlSheng$Value": ddlSheng,
                 "p1$ddlSheng": ddlSheng,
                 "p1$ddlShi$Value": ddlShi,
@@ -151,7 +152,7 @@ def report_day(sess, t, user, config):
                 "p1_pImages_Collapsed": "false",
                 "p1_ContentPanel1_Collapsed": "true",
                 "p1_Collapsed": "false",
-                "F_STATE": generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX,
+                "F_STATE": generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX,XiaoQu,
                                                ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ,
                                                SuiSM, XingCM)
             }, headers={

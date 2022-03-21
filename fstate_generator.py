@@ -12,7 +12,7 @@ def _generate_fstate_base64(fstate):
     return base64.b64encode(fstate_bytes).decode()
 
 
-def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX,
+def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX,XiaoQu,
                         ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ,
                         SuiSM, XingCM):
     with open(os.path.abspath(os.path.dirname(sys.argv[0])) + '/fstate_day.json', encoding='utf8') as f:
@@ -21,6 +21,7 @@ def generate_fstate_day(BaoSRQ, ShiFSH, ShiFZX,
     fstate['p1_BaoSRQ']['Text'] = BaoSRQ
     fstate['p1_ShiFSH']['SelectedValue'] = ShiFSH
     fstate['p1_ShiFZX']['SelectedValue'] = ShiFZX
+    fstate['p1_XiaoQu']['SelectedValue'] = XiaoQu
     fstate['p1_ddlSheng']['F_Items'] = [[ddlSheng, ddlSheng, 1, '', '']]
     fstate['p1_ddlSheng']['SelectedValueArray'] = [ddlSheng]
     fstate['p1_ddlShi']['F_Items'] = [[ddlShi, ddlShi, 1, '', '']]
@@ -52,6 +53,7 @@ def get_last_report(sess, t):
     ddlXian = '宝山区'
     XiangXDZ = '上海大学1'
     ShiFZJ = '是'
+    XiaoQu = '宝山'
 
     t = t - dt.timedelta(days=1)
     r = sess.get(f'https://selfreport.shu.edu.cn/ViewDayReport.aspx?day={t.year}-{t.month}-{t.day}')
@@ -67,6 +69,10 @@ def get_last_report(sess, t):
                 print('-ShiFZX-')
                 ShiFZX = _html_to_json(htmls[i - 1])['SelectedValue']
                 print(ShiFZX)
+            if 'XiaoQu' in h:
+                print('-XiaoQu-')
+                XiaoQu = _html_to_json(htmls[i - 1])['Text']
+                print(XiaoQu)
             if 'ddlSheng' in h:
                 print('-ddlSheng-')
                 ddlSheng = _html_to_json(htmls[i - 1])['SelectedValueArray'][0]
@@ -90,7 +96,7 @@ def get_last_report(sess, t):
         except:
             print('获取前一天日报有错误', htmls[i - 1])
 
-    return ShiFSH, ShiFZX, ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ
+    return ShiFSH, ShiFZX, XiaoQu,ddlSheng, ddlShi, ddlXian, XiangXDZ, ShiFZJ
 
 
 def get_img_value(sess):
